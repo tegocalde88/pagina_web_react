@@ -1,122 +1,184 @@
-function Header() {
+import { useState, useCallback } from 'react';
 
-    const headerStyle = {
+function Header() {
+    const [hoveredLink, setHoveredLink] = useState(null);
+    const [hoveredButton, setHoveredButton] = useState(false);
+
+    const scrollToSection = useCallback((sectionId) => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
+        }
+    }, []);
+
+    const handleNavigation = useCallback((section) => {
+        switch(section) {
+            case 'inicio':
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                break;
+            case 'peleadores':
+                scrollToSection('categorias');
+                break;
+            case 'rankings':
+                scrollToSection('rankings');
+                break;
+            case 'eventos':
+                scrollToSection('eventos');
+                break;
+            default:
+                break;
+        }
+    }, [scrollToSection]);
+
+    const handleCtaClick = useCallback(() => {
+        const heroSection = document.getElementById('hero');
+        if (heroSection) {
+            heroSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        alert('🥊 ¡Prepárate para tu primera pelea! Contáctanos para comenzar tu entrenamiento.');
+    }, []);
+
+    const handleMouseEnterLink = useCallback((index) => {
+        setHoveredLink(index);
+    }, []);
+
+    const handleMouseLeaveLink = useCallback(() => {
+        setHoveredLink(null);
+    }, []);
+
+    const handleMouseEnterButton = useCallback(() => {
+        setHoveredButton(true);
+    }, []);
+
+    const handleMouseLeaveButton = useCallback(() => {
+        setHoveredButton(false);
+    }, []);
+
+    const links = [
+        { name: "Inicio", section: "inicio", id: "inicio" },
+        { name: "Peleadores", section: "peleadores", id: "categorias" },
+        { name: "Rankings", section: "rankings", id: "rankings" },
+        { name: "Eventos", section: "eventos", id: "eventos" }
+    ];
+
+    return (
+        <header style={styles.header}>
+            <div style={styles.container}>
+                <div 
+                    style={styles.logo}
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={(e) => e.key === 'Enter' && window.scrollTo({ top: 0, behavior: 'smooth' })}
+                >
+                    UFC<span style={styles.logoAccent}>-SA</span>
+                </div>
+                
+                <nav style={styles.nav}>
+                    {links.map((link, index) => (
+                        <span
+                            key={link.name}
+                            style={{
+                                ...styles.link,
+                                color: hoveredLink === index ? "#f97316" : "#e5e5e5",
+                                textShadow: hoveredLink === index ? "0 0 4px #f97316" : "none"
+                            }}
+                            onMouseEnter={() => handleMouseEnterLink(index)}
+                            onMouseLeave={handleMouseLeaveLink}
+                            onClick={() => handleNavigation(link.section)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyPress={(e) => e.key === 'Enter' && handleNavigation(link.section)}
+                        >
+                            {link.name}
+                        </span>
+                    ))}
+                    
+                    <button
+                        style={{
+                            ...styles.button,
+                            boxShadow: hoveredButton 
+                                ? "0 6px 20px rgba(220,38,38,0.8)" 
+                                : "0 4px 14px rgba(220,38,38,0.5)",
+                            transform: hoveredButton ? "translateY(-2px)" : "translateY(0)"
+                        }}
+                        onMouseEnter={handleMouseEnterButton}
+                        onMouseLeave={handleMouseLeaveButton}
+                        onClick={handleCtaClick}
+                    >
+                        Pelea ya
+                    </button>
+                </nav>
+            </div>
+        </header>
+    );
+}
+
+const styles = {
+    header: {
         width: "100%",
-        background: "rgba(255,255,255,0.95)",
+        background: "#0a0a0a",
         backdropFilter: "blur(6px)",
-        borderBottom: "1px solid #e5e7eb",
+        borderBottom: "3px solid #dc2626",
         position: "sticky",
         top: 0,
-        zIndex: 1000
-    };
-
-    const containerStyle = {
+        zIndex: 1000,
+        fontFamily: "'Oswald', 'Arial', sans-serif",
+        flexShrink: 0,
+    },
+    container: {
         maxWidth: "1200px",
         margin: "0 auto",
         padding: "18px 24px",
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "center"
-    };
-
-    const logoStyle = {
-        fontSize: "1.6rem",
-        fontWeight: "700",
-        color: "#0f172a",
-        letterSpacing: "0.5px",
-        cursor: "pointer"
-    };
-
-    const navStyle = {
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "20px"
+    },
+    logo: {
+        fontSize: "2rem",
+        fontWeight: "800",
+        color: "#ef4444",
+        letterSpacing: "2px",
+        cursor: "pointer",
+        textTransform: "uppercase",
+        textShadow: "0 0 8px rgba(239,68,68,0.6)",
+        transition: "transform 0.3s ease",
+    },
+    logoAccent: {
+        color: "#dc2626"
+    },
+    nav: {
         display: "flex",
         gap: "30px",
-        alignItems: "center"
-    };
-
-    const linkStyle = {
+        alignItems: "center",
+        flexWrap: "wrap"
+    },
+    link: {
         textDecoration: "none",
-        color: "#475569",
-        fontSize: "0.95rem",
-        fontWeight: "500",
+        fontSize: "1rem",
+        fontWeight: "600",
         cursor: "pointer",
-        transition: "color 0.3s ease"
-    };
-
-    const buttonStyle = {
-        padding: "10px 22px",
-        background: "linear-gradient(135deg, #16a34a, #22c55e)",
+        transition: "all 0.3s ease",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px"
+    },
+    button: {
+        padding: "10px 28px",
+        background: "linear-gradient(135deg, #dc2626, #991b1b)",
         color: "white",
         border: "none",
-        borderRadius: "8px",
+        borderRadius: "30px",
         cursor: "pointer",
-        fontWeight: "600",
+        fontWeight: "700",
         fontSize: "0.95rem",
         transition: "all 0.25s ease",
-        boxShadow: "0 4px 14px rgba(34,197,94,0.35)"
-    };
-
-    return (
-        <header style={headerStyle}>
-            <div style={containerStyle}>
-                
-                {/* Logo */}
-                <div style={logoStyle}>
-                    TEGO<span style={{color:"#22c55e"}}>-SA</span>
-                </div>
-
-                {/* Navegación */}
-                <nav style={navStyle}>
-                    <span
-                        style={linkStyle}
-                        onMouseOver={e => e.target.style.color = "#16a34a"}
-                        onMouseOut={e => e.target.style.color = "#475569"}
-                    >
-                        Inicio
-                    </span>
-
-                    <span
-                        style={linkStyle}
-                        onMouseOver={e => e.target.style.color = "#16a34a"}
-                        onMouseOut={e => e.target.style.color = "#475569"}
-                    >
-                        Servicios
-                    </span>
-
-                    <span
-                        style={linkStyle}
-                        onMouseOver={e => e.target.style.color = "#16a34a"}
-                        onMouseOut={e => e.target.style.color = "#475569"}
-                    >
-                        Nosotros
-                    </span>
-
-                    <span
-                        style={linkStyle}
-                        onMouseOver={e => e.target.style.color = "#16a34a"}
-                        onMouseOut={e => e.target.style.color = "#475569"}
-                    >
-                        Contacto
-                    </span>
-
-                    {/* CTA */}
-                    <button
-                        style={buttonStyle}
-                        onMouseOver={e => {
-                            e.target.style.transform = "translateY(-2px)";
-                            e.target.style.boxShadow = "0 6px 18px rgba(34,197,94,0.45)";
-                        }}
-                        onMouseOut={e => {
-                            e.target.style.transform = "translateY(0)";
-                            e.target.style.boxShadow = "0 4px 14px rgba(34,197,94,0.35)";
-                        }}
-                    >
-                        Empezar
-                    </button>
-                </nav>
-
-            </div>
-        </header>
-    );
-}
+        textTransform: "uppercase"
+    }
+};
 
 export default Header;
